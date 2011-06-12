@@ -117,7 +117,7 @@ class Bullet extends Widget
     
 class Ship extends Widget
   constructor: (@r, @options) ->
-    @accell = @options.accell || [1, 1]
+    @accell = @options.accell || 1
     @bounciness = options.bounciness || 0.8
     @maxHealth = @health = 100
     @mass = options.mass || 2
@@ -142,8 +142,7 @@ class Ship extends Widget
     bullet.collisions() for bullet in @bullets
     
   accellerate: (vector) ->
-    @vel.adjust(vector)
-    @vel.adjust(vector)
+    @vel.adjust(vector.increaseBy(@accell))
     @vel.clampMaxTowards(8)
     @vel.clampMinTowards(-8)
 
@@ -199,7 +198,7 @@ class Game
     self = this
     @r = Raphael(20, 20, 800, 600)
     @border = @r.rect(2, 2, 798, 598).attr({stroke: "red"})
-    @p1 = new Ship(@r, position: [50, 50], radius: NIMBLE_SHIP_OUTER_RADIUS, accell: [2, 2], color: "yellow")
+    @p1 = new Ship(@r, position: [50, 50], radius: NIMBLE_SHIP_OUTER_RADIUS, accell: 2, color: "yellow")
     @p2 = new Ship(@r, position: [500, 500], mass: 9, color: "lightblue")
     
     @status = @r.text( 400, 50, '').attr(fill: "white", 'font-size': '40')
