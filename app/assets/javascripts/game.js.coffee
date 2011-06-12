@@ -1,5 +1,5 @@
 PI = 3.141592653589793
-GAME_TICK = 35
+GAME_TICK = 20
 WALL_BOUNCE = 0.8
 pressed = {}
 
@@ -10,13 +10,14 @@ Array::adjust = (other) ->
   for i in [0..(@length - 1)]
     @[i] += other[i]
 
-Array::clampMax = (val) ->
+Array::clampMinTowards = (val) ->
   for i in [0..(@length - 1)]
-    @[i] = Math.min(@[i], val)
-    
-Array::clampMin = (val) ->
+    if @[i] > val
+      @[i] -= 1
+Array::clampMaxTowards = (val) ->
   for i in [0..(@length - 1)]
-    @[i] = Math.max(@[i], val)
+    if @[i] < val
+      @[i] += 1
 
 Array::increaseBy = (val) ->
   for i in [0..(@length - 1)]
@@ -136,8 +137,8 @@ class Ship extends Widget
   accellerate: (vector) ->
     @vel.adjust(vector)
     @vel.adjust(vector)
-    @vel.clampMax(8)
-    @vel.clampMin(-8)
+    @vel.clampMaxTowards(8)
+    @vel.clampMinTowards(-8)
 
   collideWith: (otherShip) ->
     osa = @angleTo(otherShip.p)
