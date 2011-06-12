@@ -1,10 +1,10 @@
 PI = 3.141592653589793
 GAME_TICK = 25
 WALL_BOUNCE = 0.8
-DEFAULT_WIDGET_RADIUS = 45
-NIMBLE_SHIP_OUTER_RADIUS = 30
-SHIP_INNER_RADIUS = 25
-BULLET_RADIUS = 5
+DEFAULT_WIDGET_RADIUS = 25
+NIMBLE_SHIP_OUTER_RADIUS = 20
+SHIP_INNER_RADIUS = 5
+BULLET_RADIUS = 3
 pressed = {}
 
 Array::copy = ->
@@ -246,8 +246,8 @@ class Game
     @p2.move()
     
     @status.attr text: "#{@p1.color}: #{@p1.health} - #{@p2.color}: #{@p2.health}"
-    @lose(@p1) if @p1.health < 0
-    @lose(@p2) if @p2.health < 0
+    @lose(@p1) if @p1.health <= 0
+    @lose(@p2) if @p2.health <= 0
     
 $ ->
   $(window).keydown (e) ->
