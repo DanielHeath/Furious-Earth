@@ -158,7 +158,7 @@ class Ship extends Widget
       if @mainGun.ready and @moving()
         @mainGun.ready = false
         setTimeout((=> @mainGun.ready = true), @mainGun.reloadTime)
-        props = {position: @p.copy(), vel: @vel.copy().increaseBy(2), color: @color}
+        props = {position: @p.copy(), vel: @vel.copy(), color: @color}
         @bullets.push new Bullet(@r, props, @, @otherShip)
         
   bounceOffWalls: () ->
@@ -198,10 +198,20 @@ class Game
     
     window.myinterval = setInterval((-> self.tick()), GAME_TICK)
 
+  destroy: ->
+    @r.clear()
+    $(@r.node).remove()
+    
   lose: (ship) ->
-    @status.attr(text: "#{ship.color} was destroyed!")
+    @status.attr(text: "#{ship.color} was destroyed! (space to play again)")
     ship.set.remove()
     clearTimeout(window.myinterval)
+    $(window).keypress (e) -> 
+      console.log e.keyCode
+      if e.keyCode is 32
+        window.game.destroy()
+        window.game = new Game(pressed)
+        $(window).unbind('keypress')
 
   shooting: {
     p1: {
