@@ -1,12 +1,12 @@
 PI = 3.141592653589793
-GAME_TICK = 25
+GAME_TICK = 20
 WALL_BOUNCE = 0.8
 DEFAULT_WIDGET_RADIUS = 25
 NIMBLE_SHIP_OUTER_RADIUS = 20
 SHIP_INNER_RADIUS = 5
 BULLET_RADIUS = 3
 MAIN_GUN_RELOAD_TIME = 600
-BULLET_DAMAGE = 15
+BULLET_DAMAGE = 7
 pressed = {}
 
 Array::copy = ->
@@ -15,6 +15,10 @@ Array::copy = ->
 Array::adjust = (other) ->
   for i in [0..(@length - 1)]
     @[i] += other[i]
+
+Array::jiggle = () ->
+  for i in [0..(@length - 1)]
+    @[i] += (Math.random() * 4) - 2
 
 Array::clampMinTowards = (val) ->
   for i in [0..(@length - 1)]
@@ -119,12 +123,13 @@ class Ship extends Widget
   constructor: (@r, @options) ->
     @accell = @options.accell || 1
     @bounciness = options.bounciness || 0.8
-    @maxHealth = @health = 100
+    @maxHealth = @health = 200
     @mass = options.mass || 2
     @mainGun = {ready: true, reloadTime: MAIN_GUN_RELOAD_TIME}
     @bullets = []
     @name = @options.name || @options.color
     @topSpeed = @options.topSpeed || 8
+    @shotProfile = @options.shotProfile || [10, 20, 25, 30, 35, 50, 80, 130, 210, 400]
     super
     
   bounceOffShips: () ->
@@ -166,11 +171,10 @@ class Ship extends Widget
       if @mainGun.ready
         @mainGun.ready = false
         setTimeout((=> @mainGun.ready = true), @mainGun.reloadTime)
-        for time in [10, 50, 100, 200, 400]
+        for time in @shotProfile
           setTimeout((=> 
-            props = {position: @p.copy(), vel: @vel.copy(), color: @color}
-            @bullets.push new Bullet(@r, props, @, @otherShip)
-
+            props = {position: @p.copy(), vel: @vel.copy().jiggle(), color: @color}
+            @bullets.push new Bullet(@r, props, @, @otherShip)     
           ), time)
         
   bounceOffWalls: () ->
@@ -205,9 +209,9 @@ class Game
     self = this
     @r = Raphael(20, 20, 800, 600)
     @border = @r.rect(2, 2, 798, 598).attr({stroke: "red"})
-    @p2 = new Ship(@r, position: [50, 50], radius: NIMBLE_SHIP_OUTER_RADIUS, name: "The Flash", topSpeed: 5, accell: 2.4, color: "yellow")
-    @p1 = new Ship(@r, position: [500, 500], mass: 7, name: 'Blue Bertha', accell: 1.8, color: "lightblue")
-    
+    @p2 = new Ship(@r, position: [50, 50], radius: NIMBLE_SHIP_OUTER_RADIUS, shotProfile: [10, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 35, 50, 80], name: "The Flash", topSpeed: 5, accell: 2.4, color: "yellow")
+    @p1 = new Ship(@r, position: [500, 500], mass: 26, name: 'Blue Bertha', accell: 1.8, color: "lightblue")
+
     @status = @r.text( 400, 150, '').attr(fill: "white", 'font-size': '40')
     # TODO: yuk yukkity yuk.
     @p1.otherShip = @p2
@@ -220,14 +224,17 @@ class Game
     $(@r.node).remove()
     
   lose: (ship) ->
-    @status.attr(text: "#{ship.name} was destroyed\n #{ship.damageMsg}\n(space to play again)")
+    @status.attr(text: "#{ship.name} was destroyed\n #{ship.damageMsg}\n(blue press fire to play again)")
     ship.set.remove()
     clearTimeout(window.myinterval)
-    $(window).keypress (e) -> 
-      console.log e.keyCode
-      if e.keyCode is 32
+    
+    $(window).unbind('keypress')
+    $(window).keypress (e) => 
+      if @shooting.p1[e.keyCode] or @shooting.p2[e.keyCode]
         window.game.destroy()
         window.game = new Game(pressed)
+        if @shooting.p2[e.keyCode]
+          [window.game.p1, window.game.p2] = [window.game.p2, window.game.p1]
         $(window).unbind('keypress')
   
   flash: (color='pink') ->
@@ -237,11 +244,9 @@ class Game
   shooting: {
     p1: {
       113: 'main'
-      69: 'secondary'
     }
     p2: {
       47: 'main'
-      190: 'secondary'
     }
   }
   movement: {
@@ -271,10 +276,6 @@ class Game
       self.p1.shoot(self.shooting.p1[e.keyCode])
       self.p2.shoot(self.shooting.p2[e.keyCode])
         
-        
-#    @p1.shoot(value) for key, value of @shooting.p1 when @keypresses[key]
-#    @p2.shoot(value) for key, value of @shooting.p2 when @keypresses[key]
-    
     @p1.accellerate(p1Acc)
     @p2.accellerate(p2Acc)
     @p1.collisions()
