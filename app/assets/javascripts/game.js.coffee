@@ -1,6 +1,10 @@
 PI = 3.141592653589793
-GAME_TICK = 20
+GAME_TICK = 25
 WALL_BOUNCE = 0.8
+DEFAULT_WIDGET_RADIUS = 45
+NIMBLE_SHIP_OUTER_RADIUS = 30
+SHIP_INNER_RADIUS = 25
+BULLET_RADIUS = 5
 pressed = {}
 
 Array::copy = ->
@@ -30,7 +34,7 @@ class Widget
     @p ?= @expectedNextPos = @options.position
     @color ?= @options.color
     @vel ?= @options.vel || [0,0]
-    @radius ?= options.radius || 45
+    @radius ?= options.radius || DEFAULT_WIDGET_RADIUS
     @draw()
     
   move: () ->
@@ -77,7 +81,7 @@ class Widget
       
 class Bullet extends Widget
   constructor: (@r, @options, @firedBy, @firedAt) ->
-    @radius = 5
+    @radius = BULLET_RADIUS
     @damage = 35
     super(@r, @options)
     
@@ -175,7 +179,7 @@ class Ship extends Widget
   draw: (r) ->
     @set = @r.set()
     @set.push @r.circle(@p[0], @p[1], 5),
-      @r.circle(@p[0], @p[1], 25),
+      @r.circle(@p[0], @p[1], SHIP_INNER_RADIUS),
       @r.circle(@p[0], @p[1], @radius)
     @set.attr({stroke: @color})
     
@@ -184,7 +188,7 @@ class Game
     self = this
     @r = Raphael(20, 20, 800, 600)
     @border = @r.rect(2, 2, 798, 598).attr({stroke: "red"})
-    @p1 = new Ship(@r, position: [50, 50], radius: 35, accell: [2, 2], color: "yellow")
+    @p1 = new Ship(@r, position: [50, 50], radius: NIMBLE_SHIP_OUTER_RADIUS, accell: [2, 2], color: "yellow")
     @p2 = new Ship(@r, position: [500, 500], color: "lightblue")
     
     @status = @r.text( 400, 50, '').attr(fill: "white", 'font-size': '40')
