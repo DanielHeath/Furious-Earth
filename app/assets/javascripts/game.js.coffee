@@ -163,7 +163,7 @@ class Ship extends Widget
     
   shoot: (type) ->
     if type is 'main'
-      if @mainGun.ready and @moving()
+      if @mainGun.ready
         @mainGun.ready = false
         setTimeout((=> @mainGun.ready = true), @mainGun.reloadTime)
         props = {position: @p.copy(), vel: @vel.copy(), color: @color}
@@ -232,11 +232,11 @@ class Game
 
   shooting: {
     p1: {
-      81: 'main'
+      113: 'main'
       69: 'secondary'
     }
     p2: {
-      191: 'main'
+      47: 'main'
       190: 'secondary'
     }
   }
@@ -262,8 +262,14 @@ class Game
     p1Acc.adjust(value) for key, value of @movement.p1 when @keypresses[key]
     p2Acc.adjust(value) for key, value of @movement.p2 when @keypresses[key]
     
-    @p1.shoot(value) for key, value of @shooting.p1 when @keypresses[key]
-    @p2.shoot(value) for key, value of @shooting.p2 when @keypresses[key]
+    self = this
+    $(window).keypress (e) -> 
+      self.p1.shoot(self.shooting.p1[e.keyCode])
+      self.p2.shoot(self.shooting.p2[e.keyCode])
+        
+        
+#    @p1.shoot(value) for key, value of @shooting.p1 when @keypresses[key]
+#    @p2.shoot(value) for key, value of @shooting.p2 when @keypresses[key]
     
     @p1.accellerate(p1Acc)
     @p2.accellerate(p2Acc)
