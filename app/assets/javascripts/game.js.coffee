@@ -166,8 +166,12 @@ class Ship extends Widget
       if @mainGun.ready
         @mainGun.ready = false
         setTimeout((=> @mainGun.ready = true), @mainGun.reloadTime)
-        props = {position: @p.copy(), vel: @vel.copy(), color: @color}
-        @bullets.push new Bullet(@r, props, @, @otherShip)
+        for time in [10, 50, 100, 200, 400]
+          setTimeout((=> 
+            props = {position: @p.copy(), vel: @vel.copy(), color: @color}
+            @bullets.push new Bullet(@r, props, @, @otherShip)
+
+          ), time)
         
   bounceOffWalls: () ->
     newP = @nextPos()
