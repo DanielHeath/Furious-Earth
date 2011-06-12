@@ -5,7 +5,7 @@ DEFAULT_WIDGET_RADIUS = 25
 NIMBLE_SHIP_OUTER_RADIUS = 20
 SHIP_INNER_RADIUS = 5
 BULLET_RADIUS = 3
-MAIN_GUN_RELOAD_TIME = 200
+MAIN_GUN_RELOAD_TIME = 600
 BULLET_DAMAGE = 15
 pressed = {}
 
@@ -90,7 +90,7 @@ class Bullet extends Widget
   draw: (r) ->
     @set = @r.set()
     @set.push @r.circle(@p[0], @p[1], @radius)
-    @set.attr({stroke: @color})
+    @set.attr({stroke: @color, fill: @color})
     @set.toFront()
   
   destroy: () ->
@@ -123,6 +123,8 @@ class Ship extends Widget
     @mass = options.mass || 2
     @mainGun = {ready: true, reloadTime: MAIN_GUN_RELOAD_TIME}
     @bullets = []
+    @name = @options.name || @options.color
+    @topSpeed = @options.topSpeed || 8
     super
     
   bounceOffShips: () ->
@@ -143,8 +145,8 @@ class Ship extends Widget
     
   accellerate: (vector) ->
     @vel.adjust(vector.increaseBy(@accell))
-    @vel.clampMaxTowards(8)
-    @vel.clampMinTowards(-8)
+    @vel.clampMaxTowards(@topSpeed)
+    @vel.clampMinTowards(0 - @topSpeed)
 
   collideWith: (otherShip) ->
     window.game.flash()
@@ -198,8 +200,8 @@ class Game
     self = this
     @r = Raphael(20, 20, 800, 600)
     @border = @r.rect(2, 2, 798, 598).attr({stroke: "red"})
-    @p1 = new Ship(@r, position: [50, 50], radius: NIMBLE_SHIP_OUTER_RADIUS, accell: 2, color: "yellow")
-    @p2 = new Ship(@r, position: [500, 500], mass: 9, color: "lightblue")
+    @p2 = new Ship(@r, position: [50, 50], radius: NIMBLE_SHIP_OUTER_RADIUS, name: "The Flash", topSpeed: 5, accell: 2.4, color: "yellow")
+    @p1 = new Ship(@r, position: [500, 500], mass: 7, name: 'Blue Bertha', accell: 1.8, color: "lightblue")
     
     @status = @r.text( 400, 50, '').attr(fill: "white", 'font-size': '40')
     # TODO: yuk yukkity yuk.
@@ -213,7 +215,7 @@ class Game
     $(@r.node).remove()
     
   lose: (ship) ->
-    @status.attr(text: "#{ship.color} was destroyed! (space to play again)")
+    @status.attr(text: "#{ship.name} was destroyed!\n(space to play again)")
     ship.set.remove()
     clearTimeout(window.myinterval)
     $(window).keypress (e) -> 
@@ -269,7 +271,7 @@ class Game
     @p1.move()
     @p2.move()
     
-    @status.attr text: "#{@p1.color}: #{@p1.health} - #{@p2.color}: #{@p2.health}"
+    @status.attr text: "#{@p1.name}: #{@p1.health} vs #{@p2.name}: #{@p2.health}"
     @lose(@p1) if @p1.health <= 0
     @lose(@p2) if @p2.health <= 0
     
