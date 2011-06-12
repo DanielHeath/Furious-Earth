@@ -104,6 +104,7 @@ class Bullet extends Widget
   bounceOffShips: () ->
     if @wouldHitTarget(@nextPos())
       @firedAt.takeDamage @damage
+      window.game.flash(@color)
       @destroy()
 
   bounceOffWalls: () ->
@@ -147,6 +148,8 @@ class Ship extends Widget
     @vel.clampMinTowards(-8)
 
   collideWith: (otherShip) ->
+    window.game.flash()
+
     osa = @angleTo(otherShip.p)
     mya = @movementAngle()
     da = mya - osa
@@ -197,7 +200,7 @@ class Game
     @r = Raphael(20, 20, 800, 600)
     @border = @r.rect(2, 2, 798, 598).attr({stroke: "red"})
     @p1 = new Ship(@r, position: [50, 50], radius: NIMBLE_SHIP_OUTER_RADIUS, accell: [2, 2], color: "yellow")
-    @p2 = new Ship(@r, position: [500, 500], color: "lightblue")
+    @p2 = new Ship(@r, position: [500, 500], mass: 9, color: "lightblue")
     
     @status = @r.text( 400, 50, '').attr(fill: "white", 'font-size': '40')
     # TODO: yuk yukkity yuk.
@@ -220,6 +223,10 @@ class Game
         window.game.destroy()
         window.game = new Game(pressed)
         $(window).unbind('keypress')
+  
+  flash: (color='pink') ->
+    window.game.border.attr('stroke', color)
+    setTimeout((-> window.game.border.attr('stroke', 'red')), 30)
 
   shooting: {
     p1: {
