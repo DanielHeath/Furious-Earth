@@ -5,6 +5,8 @@ DEFAULT_WIDGET_RADIUS = 25
 NIMBLE_SHIP_OUTER_RADIUS = 20
 SHIP_INNER_RADIUS = 5
 BULLET_RADIUS = 3
+MAIN_GUN_RELOAD_TIME = 200
+BULLET_DAMAGE = 15
 pressed = {}
 
 Array::copy = ->
@@ -82,7 +84,7 @@ class Widget
 class Bullet extends Widget
   constructor: (@r, @options, @firedBy, @firedAt) ->
     @radius = BULLET_RADIUS
-    @damage = 35
+    @damage = BULLET_DAMAGE
     super(@r, @options)
     
   draw: (r) ->
@@ -116,9 +118,9 @@ class Ship extends Widget
   constructor: (@r, @options) ->
     @accell = @options.accell || [1, 1]
     @bounciness = options.bounciness || 0.8
-    @health = 100
+    @maxHealth = @health = 100
     @mass = options.mass || 2
-    @mainGun = {ready: true, reloadTime: 1000}
+    @mainGun = {ready: true, reloadTime: MAIN_GUN_RELOAD_TIME}
     @bullets = []
     super
     
@@ -128,6 +130,7 @@ class Ship extends Widget
 
   takeDamage: (dmg) ->
     @health -= dmg
+    @healthIndicator.scale @health / (@maxHealth / @healthIndicator.currentScale)
       
   move: () ->
     super
@@ -178,9 +181,14 @@ class Ship extends Widget
       
   draw: (r) ->
     @set = @r.set()
+    @healthIndicator = @r.circle(@p[0], @p[1], @radius).attr('fill', @color)
+    @healthIndicator.currentScale = 1
+    inner = @r.circle(@p[0], @p[1], SHIP_INNER_RADIUS)
+    inner.attr('fill', 'black')
     @set.push @r.circle(@p[0], @p[1], 5),
-      @r.circle(@p[0], @p[1], SHIP_INNER_RADIUS),
-      @r.circle(@p[0], @p[1], @radius)
+      inner,
+      @r.circle(@p[0], @p[1], @radius),
+      @healthIndicator
     @set.attr({stroke: @color})
     
 class Game
