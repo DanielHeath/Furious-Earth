@@ -103,7 +103,7 @@ class Bullet extends Widget
 
   bounceOffShips: () ->
     if @wouldHitTarget(@nextPos())
-      @firedAt.takeDamage @damage
+      @firedAt.takeDamage @damage, 'by hot plasma death'
       window.game.flash(@color)
       @destroy()
 
@@ -131,8 +131,9 @@ class Ship extends Widget
     if @wouldHitOtherShipAt(@nextPos())
       @collideWith(@otherShip)
 
-  takeDamage: (dmg) ->
+  takeDamage: (dmg, msg) ->
     @health -= dmg
+    @damageMsg = msg
     @healthIndicator.scale @health / (@maxHealth / @healthIndicator.currentScale)
       
   move: () ->
@@ -155,7 +156,7 @@ class Ship extends Widget
     mya = @movementAngle()
     da = mya - osa
     @setAngleFromCollision (@angleBetween(@expectedNextPos, otherShip.expectedNextPos) * 2) - @movementAngle()
-    @takeDamage(otherShip.mass)
+    @takeDamage(otherShip.mass, "when #{otherShip.name} smashed through them")
        
   wouldHitOtherShipAt: (pos) ->
     @distanceBetween(pos, @otherShip.expectedNextPos) <= (@radius + @otherShip.radius)
@@ -172,16 +173,16 @@ class Ship extends Widget
     newP = @nextPos()
     if (newP[0] - @radius) < 0
       @vel[0] = Math.floor(Math.abs(@vel[0]) * WALL_BOUNCE) 
-      @takeDamage 1
+      @takeDamage 1, "because they couldn't drive"
     if (newP[0] + @radius) > @r.width
       @vel[0] = - Math.floor(Math.abs(@vel[0]) * WALL_BOUNCE) 
-      @takeDamage 1
+      @takeDamage 1, "when an immobile wall surprised them"
     if (newP[1] - @radius) < 0
       @vel[1] = Math.floor(Math.abs(@vel[1]) * WALL_BOUNCE) 
-      @takeDamage 1
+      @takeDamage 1, "faceplanted (again)"
     if (newP[1] + @radius) > @r.height
       @vel[1] = - Math.floor(Math.abs(@vel[1]) * WALL_BOUNCE) 
-      @takeDamage 1
+      @takeDamage 1, "needs a portal gun"
       
   draw: (r) ->
     @set = @r.set()
@@ -203,7 +204,7 @@ class Game
     @p2 = new Ship(@r, position: [50, 50], radius: NIMBLE_SHIP_OUTER_RADIUS, name: "The Flash", topSpeed: 5, accell: 2.4, color: "yellow")
     @p1 = new Ship(@r, position: [500, 500], mass: 7, name: 'Blue Bertha', accell: 1.8, color: "lightblue")
     
-    @status = @r.text( 400, 50, '').attr(fill: "white", 'font-size': '40')
+    @status = @r.text( 400, 150, '').attr(fill: "white", 'font-size': '40')
     # TODO: yuk yukkity yuk.
     @p1.otherShip = @p2
     @p2.otherShip = @p1
@@ -215,7 +216,7 @@ class Game
     $(@r.node).remove()
     
   lose: (ship) ->
-    @status.attr(text: "#{ship.name} was destroyed!\n(space to play again)")
+    @status.attr(text: "#{ship.name} was destroyed\n #{ship.damageMsg}\n(space to play again)")
     ship.set.remove()
     clearTimeout(window.myinterval)
     $(window).keypress (e) -> 
