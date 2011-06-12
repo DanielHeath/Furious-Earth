@@ -14,6 +14,7 @@ Array::clampMinTowards = (val) ->
   for i in [0..(@length - 1)]
     if @[i] > val
       @[i] -= 1
+      
 Array::clampMaxTowards = (val) ->
   for i in [0..(@length - 1)]
     if @[i] < val
@@ -70,7 +71,6 @@ class Widget
   nextPos: () ->
     @p.copy().adjust(@vel)
 
-
   moving: () ->
     @vel[0] or @vel[1]
     
@@ -78,7 +78,7 @@ class Widget
 class Bullet extends Widget
   constructor: (@r, @options, @firedBy, @firedAt) ->
     @radius = 5
-    @damage = 5
+    @damage = 35
     super(@r, @options)
     
   draw: (r) ->
@@ -108,12 +108,12 @@ class Bullet extends Widget
                 ((newP[1] + @radius) > @r.height)
       
     
-    
 class Ship extends Widget
   constructor: (@r, @options) ->
     @accell = @options.accell || [1, 1]
     @bounciness = options.bounciness || 0.8
-    @health = 12
+    @health = 100
+    @mass = options.mass || 2
     @mainGun = {ready: true, reloadTime: 1000}
     @bullets = []
     super
@@ -124,8 +124,7 @@ class Ship extends Widget
 
   takeDamage: (dmg) ->
     @health -= dmg
-    if @health < 0
-      alert(@color + " is dead!")
+      
   move: () ->
     super
     bullet.move() for bullet in @bullets
@@ -145,6 +144,7 @@ class Ship extends Widget
     mya = @movementAngle()
     da = mya - osa
     @setAngleFromCollision (@angleBetween(@expectedNextPos, otherShip.expectedNextPos) * 2) - @movementAngle()
+    @takeDamage(otherShip.mass)
        
   wouldHitOtherShipAt: (pos) ->
     @distanceBetween(pos, @otherShip.expectedNextPos) <= (@radius + @otherShip.radius)
@@ -159,10 +159,18 @@ class Ship extends Widget
         
   bounceOffWalls: () ->
     newP = @nextPos()
-    @vel[0] = Math.floor(Math.abs(@vel[0]) * WALL_BOUNCE) if (newP[0] - @radius) < 0
-    @vel[0] = - Math.floor(Math.abs(@vel[0]) * WALL_BOUNCE) if (newP[0] + @radius) > @r.width
-    @vel[1] = Math.floor(Math.abs(@vel[1]) * WALL_BOUNCE) if (newP[1] - @radius) < 0
-    @vel[1] = - Math.floor(Math.abs(@vel[1]) * WALL_BOUNCE) if (newP[1] + @radius) > @r.height
+    if (newP[0] - @radius) < 0
+      @vel[0] = Math.floor(Math.abs(@vel[0]) * WALL_BOUNCE) 
+      @takeDamage 1
+    if (newP[0] + @radius) > @r.width
+      @vel[0] = - Math.floor(Math.abs(@vel[0]) * WALL_BOUNCE) 
+      @takeDamage 1
+    if (newP[1] - @radius) < 0
+      @vel[1] = Math.floor(Math.abs(@vel[1]) * WALL_BOUNCE) 
+      @takeDamage 1
+    if (newP[1] + @radius) > @r.height
+      @vel[1] = - Math.floor(Math.abs(@vel[1]) * WALL_BOUNCE) 
+      @takeDamage 1
       
   draw: (r) ->
     @set = @r.set()
@@ -177,13 +185,19 @@ class Game
     @r = Raphael(20, 20, 800, 600)
     @border = @r.rect(2, 2, 798, 598).attr({stroke: "red"})
     @p1 = new Ship(@r, position: [50, 50], radius: 35, accell: [2, 2], color: "yellow")
-    @p2 = new Ship(@r, position: [500, 500], color: "blue")
+    @p2 = new Ship(@r, position: [500, 500], color: "lightblue")
     
+    @status = @r.text( 400, 50, '').attr(fill: "white", 'font-size': '40')
     # TODO: yuk yukkity yuk.
     @p1.otherShip = @p2
     @p2.otherShip = @p1
     
     window.myinterval = setInterval((-> self.tick()), GAME_TICK)
+
+  lose: (ship) ->
+    @status.attr(text: "#{ship.color} was destroyed!")
+    ship.set.remove()
+    clearTimeout(window.myinterval)
 
   shooting: {
     p1: {
@@ -226,7 +240,11 @@ class Game
     @p2.collisions()
     @p1.move()
     @p2.move()
-
+    
+    @status.attr text: "#{@p1.color}: #{@p1.health} - #{@p2.color}: #{@p2.health}"
+    @lose(@p1) if @p1.health < 0
+    @lose(@p2) if @p2.health < 0
+    
 $ ->
   $(window).keydown (e) ->
     pressed[e.keyCode] = true
