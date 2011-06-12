@@ -17,23 +17,19 @@ Array::clampMax = (val) ->
 Array::clampMin = (val) ->
   for i in [0..(@length - 1)]
     @[i] = Math.max(@[i], val)
-    
-class Ship
-  constructor: (@r, @options) ->
-    @p = @expectedNextPos = @options.position || [50, 50]
-    @vel = @options.vel || [0,0]
-    @accell = @options.accell || [1, 1]
-    @color = @options.color || "red"
-    @radius = options.radius || 45
-    @bounciness = options.bounciness || 0.8
-    @draw()
 
-  accellerate: (vector) ->
-    @vel.adjust(vector)
-    @vel.adjust(vector)
-    @vel.clampMax(8)
-    @vel.clampMin(-8)
-    
+Array::increaseBy = (val) ->
+  for i in [0..(@length - 1)]
+    @[i] *= val
+  @
+
+class Widget
+  constructor: (@r, @options) ->
+    @p ?= @expectedNextPos = @options.position
+    @color ?= @options.color
+    @vel ?= @options.vel || [0,0]
+    @radius ?= options.radius || 45
+    @draw()
     
   move: () ->
     @p.adjust(@vel)
@@ -44,20 +40,6 @@ class Ship
     @bounceOffWalls()
     @bounceOffShips()
     
-  bounceOffShips: () ->
-    if @wouldHitOtherShipAt(@nextPos())
-      @collideWith(@otherShip)
-
-  wouldHitOtherShipAt: (pos) ->
-    @distanceBetween(pos, @otherShip.expectedNextPos) <= (@radius + @otherShip.radius)
-    
-  collideWith: (otherShip) ->
-    osa = @angleTo(otherShip.p)
-    mya = @movementAngle()
-    da = mya - osa
-    @setAngleFromCollision (@angleBetween(@expectedNextPos, otherShip.expectedNextPos) * 2) - @movementAngle()
-#    throw "Collision didn't bounce me away" if @wouldHitOtherShipAt(@nextPos())
-      
   setAngleFromCollision: (angle) ->
     @vel = @velocityAtAngle(angle)
     
@@ -78,7 +60,6 @@ class Ship
   velocityAtAngle: (angle) ->
     [Math.floor(@speed() * Math.sin(angle)), Math.floor(@speed() * Math.cos(angle))]
     
-  
   angleBetween: (p1, p2) ->
     Raphael.angle(p1[0], p1[1], p2[0], p2[1])
     
@@ -89,9 +70,94 @@ class Ship
     @p.copy().adjust(@vel)
 
 
+  moving: () ->
+    @vel[0] or @vel[1]
+    
+      
+class Bullet extends Widget
+  constructor: (@r, @options, @firedBy, @firedAt) ->
+    @radius = 5
+    @damage = 5
+    super(@r, @options)
+    
+  draw: (r) ->
+    @set = @r.set()
+    @set.push @r.circle(@p[0], @p[1], @radius)
+    @set.attr({stroke: @color})
+    @set.toFront()
+  
+  destroy: () ->
+    @set.remove()
+    i = @firedBy.bullets.indexOf(@)
+    @firedBy.bullets.splice(i, 1)
+
+  wouldHitTarget: (pos) ->
+    @distanceBetween(pos, @firedAt.expectedNextPos) <= (@radius + @firedAt.radius)
+
+  bounceOffShips: () ->
+    if @wouldHitTarget(@nextPos())
+      @firedAt.takeDamage @damage
+      @destroy()
+
   bounceOffWalls: () ->
     newP = @nextPos()
+    @destroy() if ((newP[0] - @radius) < 0) or                   
+                ((newP[0] + @radius) > @r.width) or
+                ((newP[1] - @radius) < 0) or
+                ((newP[1] + @radius) > @r.height)
+      
+    
+    
+class Ship extends Widget
+  constructor: (@r, @options) ->
+    @accell = @options.accell || [1, 1]
+    @bounciness = options.bounciness || 0.8
+    @health = 12
+    @mainGun = {ready: true, reloadTime: 1000}
+    @bullets = []
+    super
+    
+  bounceOffShips: () ->
+    if @wouldHitOtherShipAt(@nextPos())
+      @collideWith(@otherShip)
 
+  takeDamage: (dmg) ->
+    @health -= dmg
+    if @health < 0
+      alert(@color + " is dead!")
+  move: () ->
+    super
+    bullet.move() for bullet in @bullets
+
+  collisions: () ->
+    super
+    bullet.collisions() for bullet in @bullets
+    
+  accellerate: (vector) ->
+    @vel.adjust(vector)
+    @vel.adjust(vector)
+    @vel.clampMax(8)
+    @vel.clampMin(-8)
+
+  collideWith: (otherShip) ->
+    osa = @angleTo(otherShip.p)
+    mya = @movementAngle()
+    da = mya - osa
+    @setAngleFromCollision (@angleBetween(@expectedNextPos, otherShip.expectedNextPos) * 2) - @movementAngle()
+       
+  wouldHitOtherShipAt: (pos) ->
+    @distanceBetween(pos, @otherShip.expectedNextPos) <= (@radius + @otherShip.radius)
+    
+  shoot: (type) ->
+    if type is 'main'
+      if @mainGun.ready and @moving()
+        @mainGun.ready = false
+        setTimeout((=> @mainGun.ready = true), @mainGun.reloadTime)
+        props = {position: @p.copy(), vel: @vel.copy().increaseBy(2), color: @color}
+        @bullets.push new Bullet(@r, props, @, @otherShip)
+        
+  bounceOffWalls: () ->
+    newP = @nextPos()
     @vel[0] = Math.floor(Math.abs(@vel[0]) * WALL_BOUNCE) if (newP[0] - @radius) < 0
     @vel[0] = - Math.floor(Math.abs(@vel[0]) * WALL_BOUNCE) if (newP[0] + @radius) > @r.width
     @vel[1] = Math.floor(Math.abs(@vel[1]) * WALL_BOUNCE) if (newP[1] - @radius) < 0
@@ -116,9 +182,19 @@ class Game
     @p1.otherShip = @p2
     @p2.otherShip = @p1
     
-    setInterval((-> self.tick()), GAME_TICK)
+    window.myinterval = setInterval((-> self.tick()), GAME_TICK)
 
-  controls: {
+  shooting: {
+    p1: {
+      81: 'main'
+      69: 'secondary'
+    }
+    p2: {
+      191: 'main'
+      190: 'secondary'
+    }
+  }
+  movement: {
     p1: {
       87: [0, -1]
       83: [0,  1]
@@ -131,24 +207,24 @@ class Game
       37: [-1, 0]
       39: [ 1, 0]
     }
-
   }
+  
   tick: () ->
     p1Acc = [0, 0]
     p2Acc = [0, 0]
     
-    p1Acc.adjust(value) for key, value of @controls.p1 when @keypresses[key]
-    p2Acc.adjust(value) for key, value of @controls.p2 when @keypresses[key]
-      
+    p1Acc.adjust(value) for key, value of @movement.p1 when @keypresses[key]
+    p2Acc.adjust(value) for key, value of @movement.p2 when @keypresses[key]
+    
+    @p1.shoot(value) for key, value of @shooting.p1 when @keypresses[key]
+    @p2.shoot(value) for key, value of @shooting.p2 when @keypresses[key]
+    
     @p1.accellerate(p1Acc)
     @p2.accellerate(p2Acc)
     @p1.collisions()
     @p2.collisions()
     @p1.move()
     @p2.move()
-
-  draw: ->
-    @p1.draw(@r)
 
 $ ->
   $(window).keydown (e) ->
