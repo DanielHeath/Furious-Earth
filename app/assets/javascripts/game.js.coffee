@@ -147,7 +147,7 @@ class Ship extends Widget
 
   collisions: () ->
     super
-    bullet.collisions() for bullet in @bullets
+    bullet?.collisions() for bullet in @bullets
     
   accellerate: (vector) ->
     @vel.adjust(vector.increaseBy(@accell))
@@ -246,7 +246,7 @@ class Game
       113: 'main'
     }
     p2: {
-      47: 'main'
+      46: 'main'
     }
   }
   movement: {
@@ -273,8 +273,8 @@ class Game
     
     self = this
     $(window).keypress (e) -> 
-      self.p1.shoot(self.shooting.p1[e.keyCode])
-      self.p2.shoot(self.shooting.p2[e.keyCode])
+      self.p1.shoot(self.shooting.p1[e.keyCode || e.charCode])
+      self.p2.shoot(self.shooting.p2[e.keyCode || e.charCode])
         
     @p1.accellerate(p1Acc)
     @p2.accellerate(p2Acc)
