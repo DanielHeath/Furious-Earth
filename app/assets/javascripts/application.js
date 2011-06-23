@@ -8,9 +8,10 @@
 //= require jquery_ujs
 //= require furious_earth
 //= require_tree ./core_ext
+//= require_tree ./controllers
 //= require ./widgets/index
 //= require ./constants
 //= require ./keypress
 //= require ./game
-//= require_tree ./vendor
+//= require ./vendor/index
 //= require_tree .

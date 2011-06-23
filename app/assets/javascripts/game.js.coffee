@@ -1,12 +1,12 @@
 window.furiousEarth.Game = class Game
   constructor: (@keypresses) ->
     self = this
-    @r = Raphael(20, 20, 800, 600)
-    @border = @r.rect(2, 2, 798, 598).attr({stroke: "red"})
+    @board = new window.furiousEarth.GameBoard()
+    @r = @board.r
+
     @p2 = new window.furiousEarth.Ship(@r, position: [50, 50], radius: furiousEarth.NIMBLE_SHIP_OUTER_RADIUS, shotProfile: [10, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 35, 50, 80], name: "The Flash", topSpeed: 5, accell: 2.4, color: "yellow")
     @p1 = new window.furiousEarth.Ship(@r, position: [500, 500], mass: 26, name: 'Blue Bertha', accell: 1.8, color: "lightblue")
 
-    @status = @r.text( 400, 150, '').attr(fill: "white", 'font-size': '40')
     # TODO: yuk yukkity yuk.
     @p1.otherShip = @p2
     @p2.otherShip = @p1
