@@ -1,7 +1,7 @@
 I want to have:
 
-[ ] Configurable keys [2 pomodoro]
 [ ] Backbone for handling redraw [3 pomodoro]
+[ ] Configurable keys [2 pomodoro]
 [ ] Resizable screens [1 pomodoro once backbone works]
 [ ] Logins [1 pomodoro, super basic]
 [ ] Options remembered for each player [1 pomodoro, super basic]
@@ -12,3 +12,5 @@ I want to have:
 [ ] Unlockable / buyable powers [4 pomodoro]
 
 [ ] Support for AI controllers (and one sample AI) [4 pomodoro]
+
+[ ] Alien parade images instead of circles
