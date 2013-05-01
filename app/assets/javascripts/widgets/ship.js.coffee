@@ -10,7 +10,7 @@ window.furiousEarth.Ship = class Ship extends window.furiousEarth.Widget
     @topSpeed = @options.topSpeed || 8
     @shotProfile = @options.shotProfile || [10, 20, 25, 30, 35, 50, 80, 130, 210, 400]
     super
-    
+
   bounceOffShips: () ->
     if @wouldHitOtherShipAt(@nextPos())
       @collideWith(@otherShip)
@@ -19,7 +19,7 @@ window.furiousEarth.Ship = class Ship extends window.furiousEarth.Widget
     @health -= dmg
     @damageMsg = msg
     @healthIndicator.scale @health / (@maxHealth / @healthIndicator.currentScale)
-      
+
   move: () ->
     super
     bullet.move() for bullet in @bullets
@@ -27,7 +27,7 @@ window.furiousEarth.Ship = class Ship extends window.furiousEarth.Widget
   collisions: () ->
     super
     bullet?.collisions() for bullet in @bullets
-    
+
   accellerate: (vector) ->
     @vel.adjust(vector.increaseBy(@accell))
     @vel.clampMaxTowards(@topSpeed)
@@ -41,36 +41,36 @@ window.furiousEarth.Ship = class Ship extends window.furiousEarth.Widget
     da = mya - osa
     @setAngleFromCollision (@angleBetween(@expectedNextPos, otherShip.expectedNextPos) * 2) - @movementAngle()
     @takeDamage(otherShip.mass, "when #{otherShip.name} smashed through them")
-       
+
   wouldHitOtherShipAt: (pos) ->
     @distanceBetween(pos, @otherShip.expectedNextPos) <= (@radius + @otherShip.radius)
-    
+
   shoot: (type) ->
     if type is 'main'
       if @mainGun.ready
         @mainGun.ready = false
         setTimeout((=> @mainGun.ready = true), @mainGun.reloadTime)
         for time in @shotProfile
-          setTimeout((=> 
+          setTimeout((=>
             props = {position: @p.copy(), vel: @vel.copy().jiggle(), color: @color}
-            @bullets.push new window.furiousEarth.Bullet(@r, props, @, @otherShip)     
+            @bullets.push new window.furiousEarth.Bullet(@r, props, @, @otherShip)
           ), time)
-        
+
   bounceOffWalls: () ->
     newP = @nextPos()
     if (newP[0] - @radius) < 0
-      @vel[0] = Math.floor(Math.abs(@vel[0]) * window.furiousEarth.WALL_BOUNCE) 
+      @vel[0] = Math.floor(Math.abs(@vel[0]) * window.furiousEarth.WALL_BOUNCE)
       @takeDamage 1, "because they couldn't drive"
     if (newP[0] + @radius) > @r.width
-      @vel[0] = - Math.floor(Math.abs(@vel[0]) * window.furiousEarth.WALL_BOUNCE) 
+      @vel[0] = - Math.floor(Math.abs(@vel[0]) * window.furiousEarth.WALL_BOUNCE)
       @takeDamage 1, "when an immobile wall surprised them"
     if (newP[1] - @radius) < 0
-      @vel[1] = Math.floor(Math.abs(@vel[1]) * window.furiousEarth.WALL_BOUNCE) 
+      @vel[1] = Math.floor(Math.abs(@vel[1]) * window.furiousEarth.WALL_BOUNCE)
       @takeDamage 1, "faceplanted (again)"
     if (newP[1] + @radius) > @r.height
-      @vel[1] = - Math.floor(Math.abs(@vel[1]) * window.furiousEarth.WALL_BOUNCE) 
+      @vel[1] = - Math.floor(Math.abs(@vel[1]) * window.furiousEarth.WALL_BOUNCE)
       @takeDamage 1, "needs a portal gun"
-      
+
   draw: (r) ->
     @set = @r.set()
     @healthIndicator = @r.circle(@p[0], @p[1], @radius).attr('fill', @color)
@@ -82,4 +82,4 @@ window.furiousEarth.Ship = class Ship extends window.furiousEarth.Widget
       @r.circle(@p[0], @p[1], @radius),
       @healthIndicator
     @set.attr({stroke: @color})
-    
+

@@ -14,7 +14,7 @@ drawPaper = ->
     fn = (tf) ->
       return () ->
         window.keyPresses[number] = tf
-        game.inputEvent()
+        game.inputEvent() if game.inputEvent
     e.
       attr(fill: color, "fill-opacity": 0.2).
       touchstart(fn true).
@@ -59,4 +59,8 @@ $ ->
   game.onInit = ->
     @replayMessage = ""
     drawPaper()
+    @onLose = () ->
+      @.inputEvent = ->
+        @newGame()
+
   game.onInit()

@@ -23,22 +23,16 @@ window.furiousEarth.Game = class Game
     window.game = new Game(@keypresses)
     window.game.onDestroy = @onDestroy
     window.game.onInit = @onInit
+    window.game.onInit()
     window.game
 
-  replayMessage: "(blue press fire to play again)"
+  replayMessage: ""
 
   lose: (ship) ->
     @status.attr(text: "#{ship.name} was destroyed\n #{ship.damageMsg}\n#{@replayMessage}")
     ship.set.remove()
     clearTimeout(window.myinterval)
-
-    $(window).unbind('keypress')
-    $(window).keypress (e) =>
-      if @shooting.p1 == e.keyCode or @shooting.p2 == e.keyCode
-        game = @newGame()
-        if @shooting.p2 == e.keyCode
-          [game.p1, game.p2] = [game.p2, game.p1]
-        $(window).unbind('keypress')
+    @onLose() if @onLose
 
   flash: (color='pink') ->
     window.game.border.attr('stroke', color)
