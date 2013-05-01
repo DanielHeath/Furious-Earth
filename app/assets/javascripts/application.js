@@ -9,8 +9,7 @@
 //= require furious_earth
 //= require_tree ./core_ext
 //= require ./widgets/index
+//= require ./furious_earth
 //= require ./constants
-//= require ./keypress
 //= require ./game
 //= require_tree ./vendor
-//= require_tree .

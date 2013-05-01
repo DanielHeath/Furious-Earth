@@ -16,19 +16,28 @@ window.furiousEarth.Game = class Game
   destroy: ->
     @r.clear()
     $(@r.node).remove()
+    @onDestroy() if @onDestroy
+
+  newGame: ->
+    window.game.destroy()
+    window.game = new Game(@keypresses)
+    window.game.onDestroy = @onDestroy
+    window.game.onInit = @onInit
+    window.game
+
+  replayMessage: "(blue press fire to play again)"
 
   lose: (ship) ->
-    @status.attr(text: "#{ship.name} was destroyed\n #{ship.damageMsg}\n(blue press fire to play again)")
+    @status.attr(text: "#{ship.name} was destroyed\n #{ship.damageMsg}\n#{@replayMessage}")
     ship.set.remove()
     clearTimeout(window.myinterval)
 
     $(window).unbind('keypress')
     $(window).keypress (e) =>
-      if @shooting.p1[e.keyCode] or @shooting.p2[e.keyCode]
-        window.game.destroy()
-        window.game = new Game(@keypresses)
-        if @shooting.p2[e.keyCode]
-          [window.game.p1, window.game.p2] = [window.game.p2, window.game.p1]
+      if @shooting.p1 == e.keyCode or @shooting.p2 == e.keyCode
+        game = @newGame()
+        if @shooting.p2 == e.keyCode
+          [game.p1, game.p2] = [game.p2, game.p1]
         $(window).unbind('keypress')
 
   flash: (color='pink') ->
@@ -36,12 +45,8 @@ window.furiousEarth.Game = class Game
     setTimeout((-> window.game.border.attr('stroke', 'red')), 30)
 
   shooting: {
-    p1: {
-      113: 'main'
-    }
-    p2: {
-      46: 'main'
-    }
+    p1: 113
+    p2: 46
   }
   movement: {
     p1: {
@@ -67,8 +72,17 @@ window.furiousEarth.Game = class Game
 
     self = this
     $(window).keypress (e) ->
-      self.p1.shoot(self.shooting.p1[e.keyCode || e.charCode])
-      self.p2.shoot(self.shooting.p2[e.keyCode || e.charCode])
+      if self.shooting.p1 == (e.keyCode || e.charCode)
+        self.p1.shoot("main")
+      if self.shooting.p2 == (e.keyCode || e.charCode)
+        self.p2.shoot("main")
+
+    if @keypresses[@shooting.p1]
+      @keypresses[@shooting.p1] = false
+      self.p1.shoot('main')
+    if @keypresses[@shooting.p2]
+      @keypresses[@shooting.p2] = false
+      self.p2.shoot('main')
 
     @p1.accellerate(p1Acc)
     @p2.accellerate(p2Acc)
