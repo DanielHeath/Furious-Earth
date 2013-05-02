@@ -6,10 +6,11 @@ window.furiousEarth.Game = class Game
     else
       @r = Raphael(0, 0, window.furiousEarth.WIDTH, window.furiousEarth.HEIGHT)
     @border = @r.rect(window.furiousEarth.BORDER, window.furiousEarth.BORDER, window.furiousEarth.WIDTH - window.furiousEarth.BORDER, window.furiousEarth.HEIGHT - window.furiousEarth.BORDER).attr({stroke: "red"})
-    @p2 = new window.furiousEarth.Ship(@r, position: [50, 50], mass: 15, radius: furiousEarth.NIMBLE_SHIP_OUTER_RADIUS, shotProfile: [10, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 35, 50, 80], name: "The Flash", topSpeed: 5, accell: 2.4, color: "yellow")
+    @p2 = new window.furiousEarth.Ship(@r, position: [window.furiousEarth.WIDTH * 0.25, window.furiousEarth.HEIGHT * 0.25], mass: 15, radius: furiousEarth.NIMBLE_SHIP_OUTER_RADIUS, shotProfile: [10, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 35, 50, 80], name: "The Flash", topSpeed: 5, accell: 2.4, color: "yellow")
     @p1 = new window.furiousEarth.Ship(@r, position: [window.furiousEarth.WIDTH * 0.75, window.furiousEarth.HEIGHT * 0.75], mass: 26, name: 'Blue Bertha', accell: 1.8, color: "lightblue")
 
-    @status = @r.text( 400, 150, '').attr(fill: "white", 'font-size': ("" + 40 * window.furiousEarth.SCALE))
+    @status = @r.text(0, 150 / window.furiousEarth.SCALE, '').attr(fill: "white", 'font-size': ("" + 40 / window.furiousEarth.SCALE))
+    @status.attr('x': (window.furiousEarth.WIDTH - @status.getBBox().width) / 2)
     # TODO: yuk yukkity yuk.
     @p1.otherShip = @p2
     @p2.otherShip = @p1
