@@ -9,4 +9,6 @@ window.furiousEarth.BULLET_RADIUS = 3
 window.furiousEarth.MAIN_GUN_RELOAD_TIME = 600
 window.furiousEarth.BULLET_DAMAGE = 7
 
-
+window.furiousEarth.WIDTH = 800
+window.furiousEarth.HEIGHT = 600
+window.furiousEarth.BORDER = 2

@@ -64,3 +64,17 @@ $ ->
         @newGame()
 
   game.onInit()
+
+#rescale = ->
+#  scaleHeight = $(window).height() / window.furiousEarth.HEIGHT
+#  scaleWidth = $(window).width() / window.furiousEarth.WIDTH
+#  $('meta[name=viewport]').attr('content', "width=device-width, initial-scale=#{Math.min(scaleHeight, scaleWidth)}, maximum-scale=1.0, user-scalable=0")
+#
+#rescale()
+#window.onresize = rescale
+#window.onresize = rescale
+
+window.furiousEarth.WIDTH = $(window).width()
+window.furiousEarth.HEIGHT = $(window).height()
+
+window.furiousEarth.BORDER = 0

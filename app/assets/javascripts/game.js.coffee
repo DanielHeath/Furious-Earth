@@ -1,10 +1,13 @@
 window.furiousEarth.Game = class Game
   constructor: (@keypresses) ->
     self = this
-    @r = Raphael(20, 20, 800, 600)
-    @border = @r.rect(2, 2, 798, 598).attr({stroke: "red"})
+    if window.furiousEarth.BORDER > 0
+      @r = Raphael(20, 20, window.furiousEarth.WIDTH, window.furiousEarth.HEIGHT)
+    else
+      @r = Raphael(0, 0, window.furiousEarth.WIDTH, window.furiousEarth.HEIGHT)
+    @border = @r.rect(window.furiousEarth.BORDER, window.furiousEarth.BORDER, window.furiousEarth.WIDTH - window.furiousEarth.BORDER, window.furiousEarth.HEIGHT - window.furiousEarth.BORDER).attr({stroke: "red"})
     @p2 = new window.furiousEarth.Ship(@r, position: [50, 50], mass: 15, radius: furiousEarth.NIMBLE_SHIP_OUTER_RADIUS, shotProfile: [10, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 35, 50, 80], name: "The Flash", topSpeed: 5, accell: 2.4, color: "yellow")
-    @p1 = new window.furiousEarth.Ship(@r, position: [500, 500], mass: 26, name: 'Blue Bertha', accell: 1.8, color: "lightblue")
+    @p1 = new window.furiousEarth.Ship(@r, position: [window.furiousEarth.WIDTH * 0.75, window.furiousEarth.HEIGHT * 0.75], mass: 26, name: 'Blue Bertha', accell: 1.8, color: "lightblue")
 
     @status = @r.text( 400, 150, '').attr(fill: "white", 'font-size': '40')
     # TODO: yuk yukkity yuk.
