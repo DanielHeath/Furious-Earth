@@ -71,7 +71,7 @@ window.furiousEarth.WIDTH = $(window).width()
 window.furiousEarth.HEIGHT = $(window).height()
 window.furiousEarth.BORDER = 0
 
-scale = Math.min(oldheight / $(window).height(), oldwidth / $(window).width())
+scale = Math.max(oldheight / $(window).height(), oldwidth / $(window).width())
 
 window.furiousEarth.DEFAULT_WIDGET_RADIUS = 25 / scale
 window.furiousEarth.NIMBLE_SHIP_OUTER_RADIUS = 20 / scale
