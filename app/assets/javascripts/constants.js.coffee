@@ -12,3 +12,4 @@ window.furiousEarth.BULLET_DAMAGE = 7
 window.furiousEarth.WIDTH = 800
 window.furiousEarth.HEIGHT = 600
 window.furiousEarth.BORDER = 2
+window.furiousEarth.SCALE = 1

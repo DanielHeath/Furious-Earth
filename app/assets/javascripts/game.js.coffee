@@ -9,7 +9,7 @@ window.furiousEarth.Game = class Game
     @p2 = new window.furiousEarth.Ship(@r, position: [50, 50], mass: 15, radius: furiousEarth.NIMBLE_SHIP_OUTER_RADIUS, shotProfile: [10, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 35, 50, 80], name: "The Flash", topSpeed: 5, accell: 2.4, color: "yellow")
     @p1 = new window.furiousEarth.Ship(@r, position: [window.furiousEarth.WIDTH * 0.75, window.furiousEarth.HEIGHT * 0.75], mass: 26, name: 'Blue Bertha', accell: 1.8, color: "lightblue")
 
-    @status = @r.text( 400, 150, '').attr(fill: "white", 'font-size': '40')
+    @status = @r.text( 400, 150, '').attr(fill: "white", 'font-size': ("" + 40 * window.furiousEarth.SCALE))
     # TODO: yuk yukkity yuk.
     @p1.otherShip = @p2
     @p2.otherShip = @p1
@@ -61,6 +61,7 @@ window.furiousEarth.Game = class Game
   }
 
   tick: () ->
+
     p1Acc = [0, 0]
     p2Acc = [0, 0]
 

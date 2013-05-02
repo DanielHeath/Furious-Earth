@@ -65,16 +65,17 @@ $ ->
 
   game.onInit()
 
-#rescale = ->
-#  scaleHeight = $(window).height() / window.furiousEarth.HEIGHT
-#  scaleWidth = $(window).width() / window.furiousEarth.WIDTH
-#  $('meta[name=viewport]').attr('content', "width=device-width, initial-scale=#{Math.min(scaleHeight, scaleWidth)}, maximum-scale=1.0, user-scalable=0")
-#
-#rescale()
-#window.onresize = rescale
-#window.onresize = rescale
-
+oldheight = window.furiousEarth.HEIGHT
+oldwidth = window.furiousEarth.WIDTH
 window.furiousEarth.WIDTH = $(window).width()
 window.furiousEarth.HEIGHT = $(window).height()
-
 window.furiousEarth.BORDER = 0
+
+scale = Math.min(oldheight / $(window).height(), oldwidth / $(window).width())
+
+window.furiousEarth.DEFAULT_WIDGET_RADIUS = 25 / scale
+window.furiousEarth.NIMBLE_SHIP_OUTER_RADIUS = 20 / scale
+window.furiousEarth.SHIP_INNER_RADIUS = 5 / scale
+window.furiousEarth.BULLET_RADIUS = 3 / scale
+
+window.furiousEarth.SCALE = scale
