@@ -1,3 +1,6 @@
+window.furiousEarth.GAME_TICK = 40
+window.furiousEarth.SPEED = 2
+
 window.keyPresses ||= {}
 
 drawPaper = ->

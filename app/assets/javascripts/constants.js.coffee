@@ -1,6 +1,7 @@
 
 window.furiousEarth.PI = 3.141592653589793
 window.furiousEarth.GAME_TICK = 20
+window.furiousEarth.SPEED = 1
 window.furiousEarth.WALL_BOUNCE = 0.8
 window.furiousEarth.DEFAULT_WIDGET_RADIUS = 25
 window.furiousEarth.NIMBLE_SHIP_OUTER_RADIUS = 20

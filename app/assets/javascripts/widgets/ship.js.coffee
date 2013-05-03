@@ -1,13 +1,14 @@
 window.furiousEarth.Ship = class Ship extends window.furiousEarth.Widget
   constructor: (@r, @options) ->
     @accell = (@options.accell || 1) / window.furiousEarth.SCALE
+    @accell *= window.furiousEarth.SPEED
     @bounciness = options.bounciness || 0.8
     @maxHealth = @health = 200
     @mass = options.mass || 2
-    @mainGun = {ready: true, reloadTime: window.furiousEarth.MAIN_GUN_RELOAD_TIME}
+    @mainGun = {ready: true, reloadTime: window.furiousEarth.MAIN_GUN_RELOAD_TIME * window.furiousEarth.SPEED}
     @bullets = []
     @name = @options.name || @options.color
-    @topSpeed = (@options.topSpeed || 8) / window.furiousEarth.SCALE
+    @topSpeed = ((@options.topSpeed || 8) / window.furiousEarth.SCALE) * window.furiousEarth.SPEED
     @shotProfile = @options.shotProfile || [10, 20, 25, 30, 35, 50, 80, 130, 210, 400]
     super
 

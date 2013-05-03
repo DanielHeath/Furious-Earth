@@ -66,8 +66,9 @@ window.furiousEarth.Game = class Game
     p1Acc = [0, 0]
     p2Acc = [0, 0]
 
-    p1Acc.adjust(value) for key, value of @movement.p1 when @keypresses[key]
-    p2Acc.adjust(value) for key, value of @movement.p2 when @keypresses[key]
+    for num in [1..(window.furiousEarth.SPEED)]
+      p1Acc.adjust(value) for key, value of @movement.p1 when @keypresses[key]
+      p2Acc.adjust(value) for key, value of @movement.p2 when @keypresses[key]
 
     self = this
     $(window).keypress (e) ->
